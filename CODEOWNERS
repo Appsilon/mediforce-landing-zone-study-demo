@@ -1,0 +1,11 @@
+# CODEOWNERS for the Mediforce Landing Zone study contract.
+#
+# Anyone listed here is automatically requested for review on every pull
+# request that modifies a matching path. For a study repo, this should be
+# the data managers responsible for the study contract — they own the
+# meaning of config.yaml (cadence, required domains, validation standard).
+#
+# Replace with the data-manager team handle (e.g. @appsilon/data-managers)
+# when forking this template for a new study.
+
+* @filipstachura

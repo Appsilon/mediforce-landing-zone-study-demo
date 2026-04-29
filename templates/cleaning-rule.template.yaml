@@ -1,0 +1,13 @@
+# Placeholder for the v0.2 cleaning-rules pattern.
+#
+# See FUTURE.md in the platform monorepo (apps/landing-zone/FUTURE.md) for
+# the design rationale.
+#
+# When v0.2 lands, this file will hold deterministic value-mapping rules
+# (e.g. NY -> New York, Y -> YES) that the validator agent will propose
+# via auto-generated pull requests against this study repo. Reviewing
+# data managers approve or reject the proposed rules; merged rules then
+# flow back into the validation pipeline as additional normalisation
+# steps before the CDISC CORE engine runs.
+#
+# This file is intentionally empty for v0.1.

@@ -1,0 +1,58 @@
+# Study contract scaffold for the Mediforce Landing Zone.
+#
+# Copy this file to `config.yaml` at the repository root and fill in the
+# study-specific values. See `config.yaml` in this repo for a working
+# example (CDISCPILOT01).
+
+# Unique study identifier. Keep stable for the life of the study;
+# downstream lake paths and run histories are keyed off this value.
+studyId: <STUDY_ID>
+
+# Human-readable study title. Surfaces in the UI and report headers.
+title: <Study title>
+
+# Sponsor of record (the pharma company funding the study).
+sponsor: <Sponsor name>
+
+# CRO (clinical research organisation) producing the deliveries.
+cro: <CRO Name>
+
+# Delivery contract: what the CRO promises to send, when, and with what
+# minimum content. Used by the workflow to generate friction reports
+# when a delivery is late or partial.
+contract:
+  expectedDeliveries:
+    - name: SDTM full package
+      cadence: weekly                # one of: weekly, monthly, ad-hoc
+      day: monday                    # weekly: weekday name; monthly: integer day-of-month
+      requiredDomains: [DM, AE, LB]  # SDTM domain codes that must be present
+
+    - name: ADaM derived
+      cadence: monthly
+      day: 15
+      requiredDomains: [ADSL, ADAE, ADLB]
+
+# SFTP coordinates. The real production host and credentials live in
+# workflow secrets (`SFTP_HOST_<STUDY_ID>`, `SFTP_USER_<STUDY_ID>`,
+# `SFTP_PASS_<STUDY_ID>`); this file only records the contract shape and
+# a placeholder host for documentation.
+sftp:
+  host: host.docker.internal
+  port: 2222
+  user: cro
+  remotePath: /upload
+  authSecret: SFTP_PASS_<STUDY_ID>
+
+# Validation profile applied by the CDISC CORE rules engine.
+validation:
+  standard: SDTM                     # SDTM or ADaM
+  igVersion: "3.4"                   # Implementation Guide version
+  rulesets: [CDISC, FDA]             # Rule packs to enable
+  defineXml: data/clean/define.xml   # Path to the canonical define.xml inside the run worktree
+
+# Demo data variants — only relevant for demo / training studies.
+# Production studies usually omit this section.
+demo:
+  variants:
+    - clean
+    - injection
