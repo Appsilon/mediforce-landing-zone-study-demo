@@ -1,0 +1,29 @@
+# Custom validation rules template for the Mediforce Landing Zone.
+#
+# Copy this file to `validation-rules.yaml` at the repository root and
+# define study-specific edit checks. These rules run AFTER the CDISC CORE
+# engine (layer 2) and encode business logic that CDISC standards don't cover.
+#
+# Data managers own this file. Changes go through PR review.
+# The R validation script (validate_custom.R) reads this file and
+# executes checks via the pointblank package.
+#
+# Available check functions:
+#   col_vals_in_set     — variable values must be in a defined set
+#   col_vals_not_null   — variable must not be null/NA
+#   col_vals_between    — numeric variable must be within [left, right]
+#   rows_distinct       — specified columns must be unique
+#   cross_domain_ref    — every key in left_domain must exist in right_domain
+#
+# Severity levels: Critical | Major | Minor | Warning
+
+rules:
+  - id: CUSTOM-DM-001
+    domain: DM
+    variable: USUBJID
+    check: col_vals_not_null
+    params: {}
+    severity: Critical
+    message: "USUBJID must never be null"
+
+  # Add study-specific rules below.
