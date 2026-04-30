@@ -157,3 +157,13 @@ rules:
       join_key: USUBJID
     severity: Critical
     message: "Every USUBJID in EX must exist in DM"
+
+  # --- Smoke test rule (Stage 2 isolation) ---
+  - id: CUSTOM-SMOKE-001
+    domain: DM
+    variable: SEX
+    check: col_vals_in_set
+    params:
+      set: ["M", "F"]
+    severity: Minor
+    message: "Stage 2 smoke test — please close this PR"
