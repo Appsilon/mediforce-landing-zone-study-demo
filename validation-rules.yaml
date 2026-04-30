@@ -157,3 +157,5 @@ rules:
       join_key: USUBJID
     severity: Critical
     message: "Every USUBJID in EX must exist in DM"
+
+# test-pr-only stamp: 20260430T124734Z
