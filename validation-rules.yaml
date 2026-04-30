@@ -158,4 +158,51 @@ rules:
     severity: Critical
     message: "Every USUBJID in EX must exist in DM"
 
+  # --- Additional DM rules from rejected delivery d-1777560898 ---
+  - id: CUSTOM-DM-007
+    domain: DM
+    variable: RFENDTC
+    check: col_vals_not_null
+    params:
+      condition: "ARM is not null"
+    severity: Critical
+    message: "RFENDTC must not be null when ARM is assigned"
+
+  - id: CUSTOM-DM-008
+    domain: DM
+    variable: ARMCD
+    check: rows_distinct
+    params:
+      columns: [ARMCD, ACTARMCD]
+    severity: Major
+    message: "ARMCD must match ACTARMCD (planned and actual treatment codes must align)"
+
+  - id: CUSTOM-DM-009
+    domain: DM
+    variable: ARM
+    check: rows_distinct
+    params:
+      columns: [ARM, ACTARM]
+    severity: Major
+    message: "ARM must match ACTARM (planned and actual treatment must align)"
+
+  - id: CUSTOM-DM-010
+    domain: DM
+    variable: RFXSTDTC
+    check: col_vals_between
+    params:
+      left_column: RFXSTDTC
+      right_column: RFXENDTC
+      inclusive: true
+    severity: Critical
+    message: "RFXSTDTC must not exceed RFXENDTC (reference start date must be <= end date)"
+
+  - id: CUSTOM-DM-011
+    domain: DM
+    variable: RFICDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "RFICDTC (informed consent date) must not be null for any subject"
+
 # test-pr-only stamp: 20260430T124734Z
