@@ -21,15 +21,26 @@ cro: <CRO Name>
 # minimum content. Used by the workflow to generate friction reports
 # when a delivery is late or partial.
 contract:
+  # Key milestone dates for the study. Agents use these to assess urgency
+  # (e.g. "is this the last delivery window before DB lock?").
+  timeline:
+    enrollmentStart: "<YYYY-MM-DD>"       # first patient first visit
+    lastPatientLastVisit: "<YYYY-MM-DD>"  # LPLV — last patient last visit
+    databaseLock: "<YYYY-MM-DD>"          # hard deadline for clean data
+    submissionTarget: "<YYYY-MM-DD>"      # regulatory submission target
+    currentPhase: mid                      # recruitment | mid | closeout | urgent
+
   expectedDeliveries:
     - name: SDTM full package
       cadence: weekly                # one of: weekly, monthly, ad-hoc
       day: monday                    # weekly: weekday name; monthly: integer day-of-month
+      slaHours: 72                   # CRO must deliver within this many hours of data cut
       requiredDomains: [DM, AE, LB]  # SDTM domain codes that must be present
 
     - name: ADaM derived
       cadence: monthly
       day: 15
+      slaHours: 120
       requiredDomains: [ADSL, ADAE, ADLB]
 
 # SFTP coordinates. The real production host and credentials live in
@@ -43,12 +54,25 @@ sftp:
   remotePath: /upload
   authSecret: SFTP_PASS_<STUDY_ID>
 
-# Validation profile applied by the CDISC CORE rules engine.
+# Validation profile applied by the CDISC CORE rules engine (layer 1)
+# and the R pointblank custom rules (layer 2).
 validation:
   standard: SDTM                     # SDTM or ADaM
   igVersion: "3.4"                   # Implementation Guide version
   rulesets: [CDISC, FDA]             # Rule packs to enable
   defineXml: data/clean/define.xml   # Path to the canonical define.xml inside the run worktree
+
+  # Router thresholds — control how CDISC CORE findings map to the
+  # 5-class classification (clean / minor-fix / recovery / escalate / chaos).
+  # Data managers tune these per study; agents read them at runtime.
+  routerThresholds:
+    minorFixCtRatio: 0.80            # >= this ratio of CT findings → minor-fix
+    chaosCriticalStructureFraction: 0.50  # > this fraction of expected domains with critical structure → chaos
+    defaultSeverity: Major           # missing severity treated as this
+
+  # Study-specific validation rules executed by R + pointblank (layer 2).
+  # See validation-rules.yaml in the same directory for the rule definitions.
+  customRules: validation-rules.yaml
 
 # Demo data variants — only relevant for demo / training studies.
 # Production studies usually omit this section.
