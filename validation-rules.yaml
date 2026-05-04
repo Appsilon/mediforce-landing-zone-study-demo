@@ -158,4 +158,29 @@ rules:
     severity: Critical
     message: "Every USUBJID in EX must exist in DM"
 
+  # --- DM supplemental checks (from rejected delivery d-1777899381) ---
+  - id: CUSTOM-DM-007
+    domain: DM
+    variable: RFENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "RFENDTC must not be null when ARM is provided"
+
+  - id: CUSTOM-DM-008
+    domain: DM
+    check: rows_distinct
+    params:
+      columns: [ARMCD, ACTARMCD]
+    severity: Major
+    message: "ARMCD and ACTARMCD must match (arm code consistency)"
+
+  - id: CUSTOM-DM-009
+    domain: DM
+    check: rows_distinct
+    params:
+      columns: [ARM, ACTARM]
+    severity: Major
+    message: "ARM and ACTARM must match (arm name consistency)"
+
 # test-pr-only stamp: 20260430T124734Z
