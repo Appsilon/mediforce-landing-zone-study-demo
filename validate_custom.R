@@ -68,7 +68,7 @@ run_single_domain_check <- function(data, rule) {
       check    = check_fn,
       severity = rule$severity,
       message  = rule$message,
-      passed   = n_fail == 0,
+      passed   = isTRUE(n_fail == 0),
       n_pass   = n_pass,
       n_fail   = n_fail,
       n_total  = n_total
@@ -199,9 +199,9 @@ main <- function() {
     scriptStatus = "ok",
     rulesFile = rules_path,
     rulesTotal = length(rules),
-    rulesPassed = sum(sapply(results, function(r) isTRUE(r$passed))),
-    rulesFailed = sum(sapply(results, function(r) identical(r$passed, FALSE))),
-    rulesError = sum(sapply(results, function(r) is.na(r$passed))),
+    rulesPassed = sum(vapply(results, function(r) isTRUE(r$passed), logical(1))),
+    rulesFailed = sum(vapply(results, function(r) identical(r$passed, FALSE), logical(1))),
+    rulesError = sum(vapply(results, function(r) isTRUE(is.na(r$passed)), logical(1))),
     findingsCount = length(failed_results),
     findings = results
   )
@@ -213,4 +213,27 @@ main <- function() {
                   result$rulesError))
 }
 
-main()
+tryCatch({
+  main()
+}, error = function(e) {
+  err_msg <- conditionMessage(e)
+  err_type <- class(e)[1]
+  result <- list(
+    scriptStatus = "failed",
+    error = err_msg,
+    errorType = err_type,
+    rulesPassed = 0L,
+    rulesFailed = 0L,
+    rulesError = 0L,
+    results = list()
+  )
+  tryCatch(
+    jsonlite::write_json(result, output_path, auto_unbox = TRUE, pretty = TRUE),
+    error = function(e2) {
+      message(paste("validate_custom: failed to write error envelope:",
+                    conditionMessage(e2)))
+    }
+  )
+  message(paste("validate_custom: FAILED -", err_msg))
+  quit(status = 0)
+})
