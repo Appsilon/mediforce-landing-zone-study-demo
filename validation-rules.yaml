@@ -158,4 +158,43 @@ rules:
     severity: Critical
     message: "Every USUBJID in EX must exist in DM"
 
-# test-pr-only stamp: 20260430T124734Z
+  # --- Additional DM rules from rejected delivery d-1777898943 ---
+  - id: CUSTOM-DM-007
+    domain: DM
+    variable: RFENDTC
+    check: col_vals_not_null
+    params:
+      condition: "ARM is not null"
+    severity: Critical
+    message: "RFENDTC must not be null when ARM is provided"
+
+  - id: CUSTOM-DM-008
+    domain: DM
+    variable: RFXSTDTC
+    check: col_vals_between
+    params:
+      right_var: RFXENDTC
+    severity: Major
+    message: "RFXSTDTC must not be greater than RFXENDTC"
+
+  - id: CUSTOM-DM-009
+    domain: DM
+    variable: ACTARMCD
+    check: rows_distinct
+    params:
+      columns: [ARMCD, ACTARMCD]
+      allow_duplicates: false
+    severity: Major
+    message: "ACTARMCD must match ARMCD for each subject"
+
+  - id: CUSTOM-DM-010
+    domain: DM
+    variable: ACTARM
+    check: rows_distinct
+    params:
+      columns: [ARM, ACTARM]
+      allow_duplicates: false
+    severity: Major
+    message: "ACTARM must match ARM for each subject"
+
+# test-pr-only stamp: 20260504T125314Z (revised)
