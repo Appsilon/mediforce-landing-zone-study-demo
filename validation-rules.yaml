@@ -37,6 +37,30 @@ rules:
     severity: Critical
     message: "ARMCD must match protocol-defined arm codes"
 
+  - id: CUSTOM-DM-007
+    domain: DM
+    variable: RFENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Critical
+    message: "RFENDTC must not be null when ARM is provided"
+
+  - id: CUSTOM-DM-008
+    domain: DM
+    variable: RFXSTDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "RFXSTDTC (reference start date) must not be null"
+
+  - id: CUSTOM-DM-009
+    domain: DM
+    variable: RFXENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "RFXENDTC (reference end date) must not be null"
+
   - id: CUSTOM-DM-003
     domain: DM
     variable: USUBJID
