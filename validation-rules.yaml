@@ -158,4 +158,29 @@ rules:
     severity: Critical
     message: "Every USUBJID in EX must exist in DM"
 
+  # --- Additional DM rules from delivery d-1777898166 rejection ---
+  - id: CUSTOM-DM-007
+    domain: DM
+    variable: RFENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "RFENDTC must not be null when ARM is provided (required for study closeout)"
+
+  - id: CUSTOM-DM-008
+    domain: DM
+    variable: ACTARM
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "ACTARM (actual treatment) must not be null"
+
+  - id: CUSTOM-DM-009
+    domain: DM
+    variable: ACTARMCD
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "ACTARMCD (actual treatment code) must not be null"
+
 # test-pr-only stamp: 20260430T124734Z
