@@ -127,6 +127,40 @@ rules:
     severity: Critical
     message: "EXTRT must match protocol treatment names"
 
+  - id: CUSTOM-DM-007
+    domain: DM
+    variable: RFENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Critical
+    message: "RFENDTC must not be null when ARM is populated (reference end date for trial follow-up)"
+
+  - id: CUSTOM-DM-008
+    domain: DM
+    variable: ACTARMCD
+    check: col_vals_in_set
+    params:
+      set: ["Xan_Lo", "Xan_Hi", "Pbo"]
+    severity: Major
+    message: "ACTARMCD must match protocol-defined arm codes; must match ARMCD when available"
+
+  - id: CUSTOM-DM-009
+    domain: DM
+    variable: ACTARM
+    check: col_vals_in_set
+    params:
+      set: ["Xanomeline Low Dose", "Xanomeline High Dose", "Placebo"]
+    severity: Major
+    message: "ACTARM must match protocol treatment arms; should align with ARM"
+
+  - id: CUSTOM-DM-010
+    domain: DM
+    variable: RFXENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Critical
+    message: "RFXENDTC (reference end date for exposure) must not be null when RFXSTDTC is provided"
+
   # --- Cross-domain checks ---
   - id: CUSTOM-CROSS-001
     domain: cross
