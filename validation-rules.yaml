@@ -73,6 +73,41 @@ rules:
     severity: Major
     message: "SEX must be M or F per CDISC CT"
 
+  - id: CUSTOM-DM-007
+    domain: DM
+    variable: RFENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "RFENDTC must not be null when ARM is assigned"
+
+  - id: CUSTOM-DM-008
+    domain: DM
+    variable: ACTARMCD
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "ACTARMCD must not be null when ARMCD is assigned"
+
+  - id: CUSTOM-DM-009
+    domain: DM
+    variable: ACTARM
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "ACTARM must not be null when ARM is assigned"
+
+  - id: CUSTOM-DM-010
+    domain: DM
+    variable: RFXSTDTC
+    check: col_vals_between
+    params:
+      left_col: RFXSTDTC
+      right_col: RFXENDTC
+      strict: false
+    severity: Major
+    message: "RFXSTDTC must not be greater than RFXENDTC"
+
   # --- AE (Adverse Events) ---
   - id: CUSTOM-AE-001
     domain: AE
