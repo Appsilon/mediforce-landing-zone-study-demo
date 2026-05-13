@@ -20,14 +20,16 @@ fills marked slots; it does not invent layout or copy.
 The report is a single-column page, max-width 5xl (~1024px), with these
 sections, in this order, always:
 
-1. **Status banner** — full-width classification banner.
-2. **Header card** — study, delivery, generated timestamp, rules commit.
-3. **Key metrics row** — total findings, count by severity, dataset count.
-4. **Classification explainer** — fixed paragraph per classification.
-5. **Findings heatmap** — domain x category table (removed if no findings).
-6. **Top findings** — top 20 rules by issue count (removed if no findings).
-7. **Failure detail** — error + traceback (rendered only on script failure).
-8. **Footer** — generation metadata.
+1. **Brand header** — small wordmark + study id, prints with every page.
+2. **Status banner** — full-width classification banner.
+3. **Header card** — study, delivery, generated timestamp, rules commit.
+4. **Key metrics row** — total findings + count by severity (5 cards).
+5. **Dataset coverage** — datasets delivered + expected-vs-delivered note.
+6. **Classification explainer** — fixed paragraph per classification.
+7. **Findings heatmap** — domain x category table (removed if no findings).
+8. **Top findings** — top 20 rules by issue count (removed if no findings).
+9. **Failure detail** — error + traceback (rendered only on script failure).
+10. **Footer** — generation metadata.
 
 Sections must not be reordered, renamed, or added to. If a section has no
 data, the block is removed (template uses `<!-- BLOCK:name -->` markers
@@ -98,6 +100,20 @@ The report renders in a sandboxed iframe on the human-review page.
 - No external scripts beyond the Tailwind CDN.
 - No `fetch` or other network calls at runtime.
 - All assets (fonts, styles) load from public CDNs.
+
+The Mediforce iframe wrapper toggles a `.dark` class on `<html>` and posts
+`{type: 'theme', dark}` messages when the host UI is in dark mode. The
+template honours both `prefers-color-scheme: dark` and the explicit
+`html.dark` class so cards, borders and muted text stay legible without
+forcing the host into light mode.
+
+## Print
+
+Pharma teams print these reports for offline review. The template sets
+`print-color-adjust: exact` on the status banner, severity badges and
+heatmap cells so colour-coded signals survive the printer driver. The
+failure-detail block is `open` by default and the `<summary>` is hidden
+in print so the traceback renders inline.
 
 ## Changing the template
 
