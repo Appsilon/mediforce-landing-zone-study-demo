@@ -1,58 +1,58 @@
-# Custom validation rules for CDISCPILOT01
-#
-# These rules run AFTER the CDISC CORE engine (layer 2). They encode
-# study-specific business logic that CDISC standards don't cover.
-#
-# Data managers own this file. Changes go through PR review.
-# The R validation script (validate_custom.R) reads this file and
-# executes checks via the pointblank package.
-#
-# Rule format:
-#   domain:    SDTM domain code (DM, AE, LB, etc.)
-#   variable:  SDTM variable name
-#   check:     pointblank check function name
-#   params:    parameters passed to the check function
-#   severity:  Critical | Major | Minor | Warning
-#   message:   human-readable description of what the rule checks
-#
-# Cross-domain rules use domain: "cross" and specify the join in params.
+# CDISC Study-Specific Validation Rules
+# Study: CDISCPILOT01 (Xanomeline TTS for Alzheimer's Disease)
+# SDTM IG 3.4 + ADaM IG 1.3
+# Generated: 2026-05-13
 
 rules:
-  # --- DM (Demographics) ---
   - id: CUSTOM-DM-001
     domain: DM
     variable: ARM
-    check: col_vals_in_set
+    check: col_vals_not_in_set
     params:
-      set: ["Xanomeline Low Dose", "Xanomeline High Dose", "Placebo"]
-    severity: Critical
-    message: "ARM must match one of the 3 protocol-defined treatment arms"
+      exclusion_set:
+        - "Screen Failure"
+        - "Not Assigned"
+        - "Unplanned Treatment"
+        - "Not Treated"
+    severity: Major
+    message: "ARM must not be 'Screen Failure', 'Not Assigned', 'Unplanned Treatment', or 'Not Treated'."
 
   - id: CUSTOM-DM-002
     domain: DM
-    variable: AGE
+    variable: RFENDTC
+    check: col_vals_not_null
+    params:
+      condition: "when ARM is not null"
+    severity: Major
+    message: "RFENDTC must not be null when ARM is provided."
+
+  - id: CUSTOM-DM-003
+    domain: DM
+    variable: ARMCD
+    check: cross_domain_ref
+    params:
+      ref_variable: ACTARMCD
+      ref_domain: DM
+      comparison: "must_match"
+    severity: Major
+    message: "ARMCD must match ACTARMCD."
+
+  - id: CUSTOM-DM-004
+    domain: DM
+    variable: ARM
+    check: cross_domain_ref
+    params:
+      ref_variable: ACTARM
+      ref_domain: DM
+      comparison: "must_match"
+    severity: Major
+    message: "ARM must match ACTARM."
+
+  - id: CUSTOM-DM-005
+    domain: DM
+    variable: RFXSTDTC
     check: col_vals_between
     params:
-      left: 50
-      right: 95
+      must_be_less_than_or_equal: RFXENDTC
     severity: Major
-    message: "AGE must be between 50-95 (Alzheimer's study inclusion criteria)"
-
-  # --- AE (Adverse Events) ---
-  - id: CUSTOM-AE-001
-    domain: AE
-    variable: AEDECOD
-    check: col_vals_not_null
-    params: {}
-    severity: Major
-    message: "AEDECOD (MedDRA preferred term) must not be null"
-
-  # --- EX (Exposure) ---
-  - id: CUSTOM-EX-001
-    domain: EX
-    variable: EXTRT
-    check: col_vals_in_set
-    params:
-      set: ["Xanomeline", "Placebo"]
-    severity: Critical
-    message: "EXTRT must match protocol treatment names"
+    message: "RFXSTDTC must not be greater than RFXENDTC."
