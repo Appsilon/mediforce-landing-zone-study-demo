@@ -57,9 +57,34 @@ run_single_domain_check <- function(data, rule) {
       interrogate()
 
     report <- get_agent_report(agent, display_table = FALSE)
-    n_pass <- report$n_passed[1]
-    n_fail <- report$n_failed[1]
-    n_total <- n_pass + n_fail
+
+    # Pointblank report column names vary across versions and the report can
+    # come back empty (e.g. variable not present in the data). Read defensively
+    # from the agent's validation_set when the report doesn't carry the
+    # expected columns. Always coerce to a scalar so downstream sapply()s see
+    # a uniform shape.
+    extract_scalar <- function(value) {
+      if (is.null(value)) return(NA_integer_)
+      if (length(value) == 0) return(NA_integer_)
+      result <- suppressWarnings(as.integer(value[1]))
+      if (is.na(result)) NA_integer_ else result
+    }
+
+    n_pass_raw <- tryCatch(report$n_passed, error = function(e) NULL)
+    n_fail_raw <- tryCatch(report$n_failed, error = function(e) NULL)
+
+    if (is.null(n_pass_raw) || is.null(n_fail_raw)) {
+      validation_set <- tryCatch(agent$validation_set, error = function(e) NULL)
+      if (!is.null(validation_set) && nrow(validation_set) > 0) {
+        n_pass_raw <- validation_set$n_passed
+        n_fail_raw <- validation_set$n_failed
+      }
+    }
+
+    n_pass <- extract_scalar(n_pass_raw)
+    n_fail <- extract_scalar(n_fail_raw)
+    n_total <- if (is.na(n_pass) || is.na(n_fail)) NA_integer_ else n_pass + n_fail
+    passed_value <- if (is.na(n_fail)) NA else isTRUE(n_fail == 0L)
 
     list(
       rule_id  = rule$id,
@@ -68,7 +93,7 @@ run_single_domain_check <- function(data, rule) {
       check    = check_fn,
       severity = rule$severity,
       message  = rule$message,
-      passed   = n_fail == 0,
+      passed   = passed_value,
       n_pass   = n_pass,
       n_fail   = n_fail,
       n_total  = n_total
@@ -193,15 +218,27 @@ main <- function() {
     }
   }
 
-  failed_results <- Filter(function(r) !isTRUE(r$passed), results)
+  # Defensive scalar extraction — some rules may have produced empty or
+  # multi-element `passed` values; treat anything we can't reduce to a
+  # single TRUE/FALSE as NA so the summary counts stay well-defined.
+  passed_scalar <- function(r) {
+    value <- r$passed
+    if (is.null(value) || length(value) == 0) return(NA)
+    value[[1]]
+  }
+
+  failed_results <- Filter(function(r) !isTRUE(passed_scalar(r)), results)
 
   result <- list(
     scriptStatus = "ok",
     rulesFile = rules_path,
     rulesTotal = length(rules),
-    rulesPassed = sum(sapply(results, function(r) isTRUE(r$passed))),
-    rulesFailed = sum(sapply(results, function(r) identical(r$passed, FALSE))),
-    rulesError = sum(sapply(results, function(r) is.na(r$passed))),
+    rulesPassed = sum(vapply(results, function(r) isTRUE(passed_scalar(r)), logical(1))),
+    rulesFailed = sum(vapply(results, function(r) identical(passed_scalar(r), FALSE), logical(1))),
+    rulesError = sum(vapply(results, function(r) {
+      value <- passed_scalar(r)
+      is.logical(value) && is.na(value)
+    }, logical(1))),
     findingsCount = length(failed_results),
     findings = results
   )
