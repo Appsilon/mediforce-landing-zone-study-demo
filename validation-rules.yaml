@@ -47,6 +47,48 @@ rules:
     severity: Major
     message: "AEDECOD (MedDRA preferred term) must not be null"
 
+  - id: CUSTOM-DM-003
+    domain: DM
+    variable: RFENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "RFENDTC (date of last dose/last visit) must be populated when ARM is provided"
+
+  # --- AE (Adverse Events) ---
+  - id: CUSTOM-AE-002
+    domain: AE
+    variable: AEBDSYCD
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "AEBDSYCD must be populated when AEBODSYS is not empty"
+
+  - id: CUSTOM-AE-003
+    domain: AE
+    variable: AEENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "AEENDTC must not be populated when AEOUT is 'NOT RECOVERED', 'NOT RESOLVED', or 'UNKNOWN'"
+
+  # --- LB (Laboratory) ---
+  - id: CUSTOM-LB-001
+    domain: LB
+    variable: LBSTRESN
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "LBSTRESN must be populated and equal to LBSTRESC when LBSTRESC is numeric"
+
+  - id: CUSTOM-LB-002
+    domain: LB
+    variable: LBORNRHI
+    check: col_vals_not_null
+    params: {}
+    severity: Minor
+    message: "LBORNRHI must be empty when LBORRES is not a continuous measurement"
+
   # --- EX (Exposure) ---
   - id: CUSTOM-EX-001
     domain: EX
