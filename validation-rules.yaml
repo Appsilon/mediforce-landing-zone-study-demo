@@ -38,6 +38,14 @@ rules:
     severity: Major
     message: "AGE must be between 50-95 (Alzheimer's study inclusion criteria)"
 
+  - id: CUSTOM-DM-003
+    domain: DM
+    variable: RFENDTC
+    check: col_vals_not_null
+    params: {}
+    severity: Critical
+    message: "RFENDTC (Reference End Date/Time) must not be null for enrolled subjects"
+
   # --- AE (Adverse Events) ---
   - id: CUSTOM-AE-001
     domain: AE
@@ -46,6 +54,53 @@ rules:
     params: {}
     severity: Major
     message: "AEDECOD (MedDRA preferred term) must not be null"
+
+  # --- AE (Adverse Events) ---
+  - id: CUSTOM-AE-002
+    domain: AE
+    variable: AEBDSYCD
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "AEBDSYCD (Body System code) must not be null"
+
+  - id: CUSTOM-AE-003
+    domain: AE
+    variable: AESER
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "AESER (Serious Adverse Event flag) must not be null"
+
+  - id: CUSTOM-AE-004
+    domain: cross
+    variable: USUBJID
+    check: cross_domain_ref
+    params:
+      left_domain: AE
+      left_col: USUBJID
+      right_domain: DM
+      right_col: USUBJID
+    severity: Critical
+    message: "USUBJID in AE must exist in DM"
+
+  # --- LB (Laboratory) ---
+  - id: CUSTOM-LB-001
+    domain: LB
+    variable: LBSTRESN
+    check: col_vals_not_null
+    params: {}
+    severity: Major
+    message: "LBSTRESN (Standardized Numeric Result) must not be null"
+
+  - id: CUSTOM-LB-002
+    domain: LB
+    variable: LBSEQ
+    check: rows_distinct
+    params:
+      columns: [USUBJID, LBSEQ]
+    severity: Major
+    message: "LBSEQ (Sequence Number) must be unique per USUBJID"
 
   # --- EX (Exposure) ---
   - id: CUSTOM-EX-001
